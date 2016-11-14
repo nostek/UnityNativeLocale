@@ -6,14 +6,16 @@ public static class NativeLocale
 {
 	const string Default = "en";
 
-	#if UNITY_IOS
+	#if !UNITY_EDITOR && UNITY_IOS
 	[DllImport("__Internal")]
 	static extern string _CNativeLocaleGetLocale();
 	#endif
 
 	public static string GetLocale()
 	{
-		#if UNITY_ANDROID
+		#if UNITY_EDITOR
+		return Default;
+		#elif UNITY_ANDROID
 		using (AndroidJavaClass cls = new AndroidJavaClass("java.util.Locale"))
 		{
 			using (AndroidJavaObject locale = cls.CallStatic<AndroidJavaObject>("getDefault"))
