@@ -6,7 +6,8 @@
 }
 
 - (id)init;
-- (NSString *)getLocale;
+- (NSString *)getLanguage;
+- (NSString *)getCountryCode;
 
 @end
 
@@ -18,10 +19,16 @@
     return self;
 }
 
-- (NSString *)getLocale
+- (NSString *)getLanguage
 {
     NSString *lang = [[NSLocale currentLocale] objectForKey:NSLocaleLanguageCode];
     return lang;
+}
+
+- (NSString *)getCountryCode
+{
+    NSString *cc = [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
+    return cc;
 }
 
 @end
@@ -51,12 +58,20 @@ static NativeLocale* instance = nil;
 
 extern "C" {
 
-	const char* _CNativeLocaleGetLocale()
+	const char* _CNativeLocaleGetLanguage()
 	{
         if(instance == nil)
             instance = [[NativeLocale alloc] init];
         
-		return MakeStringCopy([[instance getLocale] UTF8String]);
+		return MakeStringCopy([[instance getLanguage] UTF8String]);
+	}
+
+	const char* _CNativeLocaleGetCountryCode()
+	{
+		if(instance == nil)
+			instance = [[NativeLocale alloc] init];
+
+		return MakeStringCopy([[instance getCountryCode] UTF8String]);
 	}
     
 }
