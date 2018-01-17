@@ -21,8 +21,10 @@
 
 - (NSString *)getLanguage
 {
-    NSString *lang = [[NSLocale currentLocale] objectForKey:NSLocaleLanguageCode];
-    return lang;
+    id langs = [NSLocale preferredLanguages];
+    if(langs != nil && [langs count] > 0)
+        return [langs objectAtIndex:0];
+    return [[NSLocale currentLocale] objectForKey:NSLocaleLanguageCode];
 }
 
 - (NSString *)getCountryCode
