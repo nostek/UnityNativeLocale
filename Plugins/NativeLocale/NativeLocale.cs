@@ -4,7 +4,8 @@ using System.Runtime.InteropServices;
 
 public static class NativeLocale
 {
-	const string DefaultLanguage = "en";
+	const string DefaultLanguageShort = "en";
+	const string DefaultLanguageFull = "en-US";
 	const string DefaultCountryCode = "en";
 
 	#if !UNITY_EDITOR && UNITY_IOS
@@ -15,38 +16,50 @@ public static class NativeLocale
 	static extern string _CNativeLocaleGetCountryCode();
 	#endif
 
+	static string DefaultLanguage(bool returnFull)
+	{
+		if (returnFull)
+			return DefaultLanguageFull;
+		return DefaultLanguageShort;
+	}
+
 	public static string GetLanguage()
 	{
+		return GetLanguage(false);
+	}
+
+	public static string GetLanguage(bool returnFullLanguage)
+	{
 		#if UNITY_EDITOR
-		return DefaultLanguage;
+		return DefaultLanguage(returnFullLanguage);
 		#elif UNITY_ANDROID
 		using (AndroidJavaClass cls = new AndroidJavaClass("java.util.Locale"))
 		{
-			using (AndroidJavaObject locale = cls.CallStatic<AndroidJavaObject>("getDefault"))
-			{
-				string lang = locale.Call<string>("getLanguage");
-				
-				if (string.IsNullOrEmpty(lang))
-					return DefaultLanguage;
+		using (AndroidJavaObject locale = cls.CallStatic<AndroidJavaObject>("getDefault"))
+		{
+		string lang = locale.Call<string>("getLanguage");
 
-				if (lang.Length > 2)
-					lang = lang.Substring(0, 2);
+		if (string.IsNullOrEmpty(lang))
+		return DefaultLanguage(returnFullLanguage);
 
-				return lang.ToLower();
-			}
+		if (!returnFullLanguage && lang.Length > 2)
+		lang = lang.Substring(0, 2);
+
+		return lang.ToLower();
+		}
 		}
 		#elif UNITY_IOS
 		string lang = _CNativeLocaleGetLanguage();
 
 		if (string.IsNullOrEmpty(lang))
-			return DefaultLanguage;
+		return DefaultLanguage(returnFullLanguage);
 
-		if (lang.Length > 2)
-			lang = lang.Substring(0, 2);
+		if (!returnFullLanguage && lang.Length > 2)
+		lang = lang.Substring(0, 2);
 
 		return lang.ToLower();
 		#else
-			return DefaultLanguage;
+		return DefaultLanguage;
 		#endif
 	}
 
